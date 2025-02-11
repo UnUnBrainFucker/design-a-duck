@@ -1,0 +1,185 @@
+<html>
+<head>
+    <title>Color Your Duck</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: auto;
+        }
+        .color-picker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="duckCanvas" width="400" height="500"></canvas>
+    <div class="color-picker">
+        <label for="bodyColor">Body Color:</label>
+        <select id="bodyColor" onchange="drawDuck()"></select>
+        
+        <label for="headColor">Head Color:</label>
+        <select id="headColor" onchange="drawDuck()"></select>
+        
+        <label for="collarColor">Collar Color:</label>
+        <select id="collarColor" onchange="drawDuck()"></select>
+        
+        <label for="wing1Color">Wing 1 Color:</label>
+        <select id="wing1Color" onchange="drawDuck()"></select>
+        
+        <label for="wing2Color">Wing 2 Color:</label>
+        <select id="wing2Color" onchange="drawDuck()"></select>
+        
+        <label for="beakColor">Beak Color:</label>
+        <select id="beakColor" onchange="drawDuck()"></select>
+        
+        <button onclick="saveDuck()">Save Image</button>
+    </div>
+    <div id="initialsKey" style="text-align: center; margin-top: 20px;">
+        <h3>Color Initials Key:</h3>
+        <p>W: White, C: Cream, LP: Light Pink, Y: Yellow, LG: Light Green, LB: Light Blue, P: Pink, O: Orange</p>
+        <p>R: Red, M: Magenta, Pu: Purple, B: Blue, G: Green, Br: Brown, Gr: Gray, DG: Dark Gray, Bl: Black</p>
+    </div>
+    <script>
+        const colors = {
+            "White": { hex: "#FFFFFF" },
+            "Cream": { hex: "#FFFDD0" },
+            "Light Pink": { hex: "#FFB6C1" },
+            "Yellow": { hex: "#FFFF00" },
+            "Light Green": { hex: "#90EE90" },
+            "Light Blue": { hex: "#ADD8E6" },
+            "Pink": { hex: "#FFC0CB" },
+            "Orange": { hex: "#FFA500" },
+            "Red": { hex: "#FF0000" },
+            "Magenta": { hex: "#FF00FF" },
+            "Purple": { hex: "#800080" },
+            "Blue": { hex: "#0000FF" },
+            "Green": { hex: "#008000" },
+            "Brown": { hex: "#A52A2A" },
+            "Gray": { hex: "#808080" },
+            "Dark Gray": { hex: "#A9A9A9" },
+            "Black": { hex: "#000000" }
+        };
+        
+        function populateColorOptions() {
+            const selects = document.querySelectorAll("select");
+            selects.forEach(select => {
+                Object.entries(colors).forEach(([colorName, colorData]) => {
+                    let option = document.createElement("option");
+                    option.value = colorData.hex;
+                    option.textContent = colorName;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        function drawDuck() {
+            const canvas = document.getElementById("duckCanvas");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            function getColor(id) {
+                return document.getElementById(id).value;
+            }
+            
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 3;
+            
+            ctx.fillStyle = getColor("bodyColor");
+            ctx.beginPath();
+            ctx.ellipse(200, 250, 80, 100, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = getColor("headColor");
+            ctx.beginPath();
+            ctx.arc(200, 120, 50, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = getColor("collarColor");
+            ctx.fillRect(170, 170, 60, 10);
+            ctx.strokeRect(170, 170, 60, 10);
+            
+            ctx.fillStyle = getColor("wing1Color");
+            ctx.beginPath();
+            ctx.ellipse(130, 250, 50, 30, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = getColor("wing2Color");
+            ctx.beginPath();
+            ctx.ellipse(270, 250, 50, 30, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = getColor("beakColor");
+            ctx.beginPath();
+            ctx.moveTo(190, 140);
+            ctx.lineTo(210, 140);
+            ctx.lineTo(200, 160);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(185, 110, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(215, 110, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw color initials at the bottom
+            ctx.textAlign = "center";
+            ctx.font = "16px Arial";
+            
+            const rowY1 = 400;
+            const rowY2 = 420;
+            const rowY3 = 440;
+            let x = 40;
+            const spacing = 45;
+
+            Object.entries(colors).forEach(([name, data], index) => {
+                let initials = name.split(' ')
+                    .map(word => word[0])
+                    .join('');
+                
+                let y;
+                if (index < 6) {
+                    y = rowY1;
+                } else if (index < 12) {
+                    if (index === 6) x = 40;
+                    y = rowY2;
+                } else {
+                    if (index === 12) x = 40;
+                    y = rowY3;
+                }
+                
+                ctx.fillStyle = data.hex;
+                if (name === "White" || name === "Yellow" || name === "Cream") {
+                    ctx.strokeText(initials, x, y);
+                }
+                ctx.fillText(initials, x, y);
+                x += spacing;
+            });
+        }
+        
+        function saveDuck() {
+            const canvas = document.getElementById("duckCanvas");
+            const link = document.createElement("a");
+            link.download = "my_duck.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        window.onload = function() {
+            populateColorOptions();
+            drawDuck();
+        };
+    </script>
+</body>
+</html>
